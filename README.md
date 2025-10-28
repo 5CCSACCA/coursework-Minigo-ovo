@@ -20,18 +20,20 @@ Once the service is deployed and running on port 8000, you can test the followin
 * **Path:** `/`
 * **Method:** `GET`
 * **Expected Output:** `{"status": "ok", "message": "API is running"}`
-* **Test Command:** ```bash
-    curl http://localhost:8000/
-  ```
+* **Test Command:**
+```bash
+curl http://localhost:8000/
+```
 
 ### 3.2 Text Generation Service (BitNet Placeholder)
 * **Path:** `/api/v1/generate`
 * **Method:** `POST`
 * **Input:** JSON body containing a string prompt.
 * **Expected Output:** A JSON object summarizing the input and the placeholder LLM response.
-* **Test Command:** ```bash
-    curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello BitNet"}' http://localhost:8000/api/v1/generate
-  ```
+* **Test Command:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello BitNet"}' http://localhost:8000/api/v1/generate
+```
 
 ### 3.3 Image Detection Service (Yolo Placeholder)
 * **Path:** `/api/v1/detect`
