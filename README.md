@@ -1,19 +1,19 @@
 # 5CCSACCA AI SaaS Deployment Manual
 This document provides instructions for deploying the dual-modal AI SaaS application using Docker.
 
-##1. Build the Docker Image (One Command)
+## 1. Build the Docker Image (One Command)
 Use the following command to build the image, ensuring all dependencies and code are packaged:
 ```bash
 sudo docker build . -t ai-saas-app
 ```
 
-##2. Run the Service (One Command)
+## 2. Run the Service (One Command)
 Use the following command to run the container in the background, mapping the host's port 8000 to the container's internal API port 80:
 ```bash
 sudo docker run -d -p 8000:80 ai-saas-app
 ```
 
-##3. API Endpoints
+## 3. API Endpoints
 Once the service is deployed and running on port 8000, you can test the following endpoints:
 
 ### 3.1 Health Check (Verification)
