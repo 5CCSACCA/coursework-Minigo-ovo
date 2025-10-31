@@ -19,28 +19,41 @@ Once the service is deployed and running on port 8000, you can test the followin
 ### 3.1 Health Check (Verification)
 * **Path:** `/`
 * **Method:** `GET`
-* **Expected Output:** `{"status": "ok", "message": "API is running"}`
 * **Test Command:**
 ```bash
 curl http://localhost:8000/
+```
+* **Expected Output:**
+```json
+{"status": "ok", "message": "API is running"}
 ```
 
 ### 3.2 Text Generation Service (BitNet Placeholder)
 * **Path:** `/api/v1/generate`
 * **Method:** `POST`
 * **Input:** JSON body containing a string prompt.
-* **Expected Output:** A JSON object summarizing the input and the placeholder LLM response.
 * **Test Command:**
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello BitNet"}' http://localhost:8000/api/v1/generate
+curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Tell me a joke."}' http://localhost:8000/api/v1/generate
+```
+* **Expected Output:**
+```json
+{"input_prompt":"Tell me a joke.","llm_response":"BitNet Placeholder: I received your prompt and processed it: 'Tell me a joke.'.","model":"BitNet(Placeholder)"}
 ```
 
 ### 3.3 Image Detection Service (Yolo Placeholder)
+
 * **Path:** `/api/v1/detect`
-* **Method:** `POST`
-* **Input:** Multipart form data containing an image file.
-* **Expected Output:** A JSON object summarizing the placeholder detection results.
-* **Note:** This endpoint is configured to receive and process files but currently returns placeholder data for this initial submission.
+* **Method:** `POST` (Multipart form data)
+* **Input:** A file named `test_image.jpg` or similar.
+* **Test Command:**
+```bash
+curl -X POST -F "file=@test_image.jpg" http://localhost:8000/api/v1/detect
+```
+* **Expected Output:**
+```json
+{"filename":"test.jpeg","size_bytes":5648,"status":"File received and model structure ready for inference."}
+```
 
 ## Project Vision: The "Imaginer" (Contextual Narrative Generator)
 
