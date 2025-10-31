@@ -45,10 +45,10 @@ curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Tell me a joke.
 
 * **Path:** `/api/v1/detect`
 * **Method:** `POST` (Multipart form data)
-* **Input:** A file named `test_image.jpg` or similar.
+* **Input:** A file named `test.jpeg` or similar.
 * **Test Command:**
 ```bash
-curl -X POST -F "file=@test_image.jpg" http://localhost:8000/api/v1/detect
+curl -X POST -F "file=@test.jpeg" http://localhost:8000/api/v1/detect
 ```
 * **Expected Output:**
 ```json
