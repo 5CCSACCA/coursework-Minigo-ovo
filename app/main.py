@@ -1,14 +1,14 @@
 from fastapi import FastAPI, File, UploadFile, Body
-#from ultralytics import YOLO
+from ultralytics import YOLO
 app = FastAPI()
 
-#try:
-#    MODEL = YOLO("yolov8n.pt")
-#except Exception as e:
-#    MODEL = none
-#    print(f"Warning: Model could not be loaded: {e}")
+try:
+    MODEL = YOLO("yolov8n.pt")
+except Exception as e:
+    MODEL = none
+    print(f"Warning: Model could not be loaded: {e}")
 
-MODEL = True
+#MODEL = True
 
 @app.get("/")
 def read_root():
@@ -18,15 +18,21 @@ def read_root():
 async def detect_image(file: UploadFile = File(...)):
     if not MODEL:
         return {"error":"Model not loaded"}, 500
-
-    #contents = await file.read()
-    #results = MODEL(contents)
-    return {
-	"filename": file.filename,
-	"result_summary": f"Placeholder: Successfully processed image for detection.",
-	"model": "YOLOv8n(Placeholder)"
-    }
-
+    try:
+        contents = await file.read()
+        #results = MODEL(contents)
+#    return {
+#	"filename": file.filename,
+#	"result_summary": f"Placeholder: Successfully processed image for detection.",
+#	"model": "YOLOv8n(Placeholder)"
+#    }
+        return {
+            "filename":file.filename,
+            "size_bytes":len(contents),
+            "status":"File received and model structure ready for inference."
+        }
+    except Exception as e:
+        return {"error": f"Processing failed: {str(e)}"}, 500
 @app.post("/api/v1/generate")
 def generate_text(prompt: str = Body(..., embed=True)):
     """BitNet LLM Placeholder Service"""
