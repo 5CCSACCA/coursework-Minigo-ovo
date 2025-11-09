@@ -1,3 +1,4 @@
+# Review: This dockerfile is well-structured for deploying a FastAPI application. Please, consider start creating your docker compose file.
 FROM python:3.10-slim
 WORKDIR /app
 RUN apt-get update && \

@@ -1,3 +1,4 @@
+# Review: This code sets up a FastAPI application with endpoints for image detection using a YOLO model and text generation using bitnet in principle. The YOLO model is loaded at startup, please properly document the code and ensure error handling is in place for model loading and inference.
 from fastapi import FastAPI, File, UploadFile, Body
 from ultralytics import YOLO
 app = FastAPI()
