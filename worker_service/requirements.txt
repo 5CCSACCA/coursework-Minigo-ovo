@@ -1,0 +1,9 @@
+aio-pika
+pydantic
+requests
+pillow
+google-genai
+psycopg2-binary
+SQLAlchemy
+firebase-admin
+prometheus-client

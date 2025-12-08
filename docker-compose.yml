@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  # ------------------------------------
+  # 1. Message Queue (RabbitMQ)
+  # ------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - backend
+
+  # ------------------------------------
+  # 2. Database Service (PostgreSQL)
+  # ------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: saas_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d saas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - backend
+
+  # ------------------------------------
+  # 3. API Service (Uploader/Producer)
+  # ------------------------------------
+  uploader:
+    build:
+      context: ./uploader_service
+    container_name: uploader
+    ports:
+      - "8000:8000"  # API
+      - "8002:8002"  # Prometheus Metrics
+    volumes:
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      POSTGRES_DB_URL: postgresql://user:password@db:5432/saas_db
+      FIREBASE_CREDENTIALS_FILE: /app/firebase-credentials.json
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - rabbitmq
+      - db
+    restart: always
+    networks:
+      - backend
+
+  # ------------------------------------
+  # 4. Worker Service (Consumer)
+  # ------------------------------------
+  worker:
+    build:
+      context: ./worker_service
+    container_name: worker
+    ports:
+      - "8003:8003"  # Prometheus Metrics
+    volumes:
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      POSTGRES_DB_URL: postgresql://user:password@db:5432/saas_db
+      GEMINI_MODEL: "gemini-2.5-flash"
+      FIREBASE_CREDENTIALS_FILE: /app/firebase-credentials.json
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - rabbitmq
+      - db
+    restart: always
+    networks:
+      - backend
+
+  # ------------------------------------
+  # 5. Monitoring Stack (Prometheus + Grafana + Exporter)
+  # ------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: always
+    networks:
+      - backend
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    container_name: rabbitmq-exporter
+    environment:
+      RABBIT_URL: http://rabbitmq:15672
+      RABBIT_USER: guest
+      RABBIT_PASSWORD: guest
+    ports:
+      - "9419:9419"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: always
+    networks:
+      - backend
+
+  # ------------------------------------
+  # 8. User Interface (Streamlit) - NEW!
+  # ------------------------------------
+  ui:
+    build:
+      context: ./ui
+    container_name: ui
+    ports:
+      - "8501:8501" # 网页访问端口
+    environment:
+      API_URL: http://uploader:8000
+    depends_on:
+      uploader:
+        condition: service_started
+    restart: always
+    networks:
+      - backend
+
+# --- Volumes and Networks ---
+volumes:
+  postgres_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge

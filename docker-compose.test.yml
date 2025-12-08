@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # --- 测试替身：重新定义所有核心服务 ---
+  # 这样无论文件夹叫什么，它们都在同一个测试网络里
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: saas_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d saas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  uploader:
+    build:
+      context: ./uploader_service
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      POSTGRES_DB_URL: postgresql://user:password@db:5432/saas_db
+      FIREBASE_CREDENTIALS_FILE: /app/firebase-credentials.json
+    volumes:
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - rabbitmq
+      - db
+    restart: always
+
+  worker:
+    build:
+      context: ./worker_service
+    env_file: .env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      POSTGRES_DB_URL: postgresql://user:password@db:5432/saas_db
+      GEMINI_MODEL: "gemini-2.5-flash"
+      FIREBASE_CREDENTIALS_FILE: /app/firebase-credentials.json
+    volumes:
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - rabbitmq
+      - db
+    restart: always
+
+  # --- 主角：系统测试运行器 ---
+  system-tests:
+    build: 
+      context: ./uploader_service # 复用 Uploader 的环境
+    command: ["bash", "systemtest.bash"] # 运行我们的脚本
+    volumes:
+      # 挂载测试脚本和代码
+      - ./uploader_service/systemtest.bash:/app/systemtest.bash
+      - ./uploader_service/systemtest.py:/app/systemtest.py
+    environment:
+      # 告诉测试代码去哪里找 API
+      BASE_URL: http://uploader:8000
+    depends_on:
+      uploader:
+        condition: service_started
+      worker:
+        condition: service_started
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
