@@ -46,8 +46,15 @@ This system is designed to run on a fresh Linux machine with **Docker** and **Do
 * A Firebase Realtime Database URL & Credentials JSON
 
 ### 2. Configuration (`.env` file)
-This project uses environment variables for security.
-**Before running**, please create a file named `.env` in the root directory and populate it with the following variables:
+This project uses environment variables for security.   
+### **Before running**, 
+> **📝 Note for Examiners / Markers:**
+> To facilitate testing, the required **`.env`** file and the **`firebase-credentials.json`** service account key have been submitted separately via **KEATS** (packaged in a ZIP file).
+>
+> **Please download and extract these two files into the project root directory** (`AI_Project/`) before running the system. This ensures secure access to the Gemini API and Firebase services without exposing credentials in the codebase.
+
+*(If you are setting this up from scratch, please follow the template below to create your own .env file)*
+Please create a file named `.env` in the root directory and populate it with the following variables:
 
 ```bash
 # Copy and paste this into a new file named .env
@@ -64,7 +71,7 @@ FIREBASE_CREDENTIALS_FILE=/app/firebase-credentials.json
 
 POSTGRES_DB_URL=postgresql://user:password@db:5432/saas_db
 ```
-Note: Ensure your firebase-credentials.json file is placed in the root directory.
+**Note: Ensure your firebase-credentials.json file is placed in the root directory.**
 
 ### 3. One-Command Deployment
 To build and start the entire stack (API, Worker, DBs, Monitoring, UI):
