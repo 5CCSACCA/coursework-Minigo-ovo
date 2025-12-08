@@ -1,0 +1,6 @@
+.env
+firebase-credentials.json
+__pycache__/
+*.pyc
+postgres_data/
+grafana_data/
