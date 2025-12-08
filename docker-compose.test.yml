@@ -1,8 +1,6 @@
 version: '3.8'
 
 services:
-  # --- 测试替身：重新定义所有核心服务 ---
-  # 这样无论文件夹叫什么，它们都在同一个测试网络里
   
   rabbitmq:
     image: rabbitmq:3-management
@@ -67,17 +65,14 @@ services:
       - db
     restart: always
 
-  # --- 主角：系统测试运行器 ---
   system-tests:
     build: 
-      context: ./uploader_service # 复用 Uploader 的环境
-    command: ["bash", "systemtest.bash"] # 运行我们的脚本
+      context: ./uploader_service
+    command: ["bash", "systemtest.bash"]
     volumes:
-      # 挂载测试脚本和代码
       - ./uploader_service/systemtest.bash:/app/systemtest.bash
       - ./uploader_service/systemtest.py:/app/systemtest.py
     environment:
-      # 告诉测试代码去哪里找 API
       BASE_URL: http://uploader:8000
     depends_on:
       uploader:
