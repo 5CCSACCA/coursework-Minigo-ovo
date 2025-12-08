@@ -1,4 +1,5 @@
-# ☁️ Cloud-Native AI SaaS: Multimodal Object Detection & Reasoning
+# ☁️ Cloud-Native AI SaaS Project
+> **Repository URL:** [https://github.com/5CCSACCA/coursework-Minigo-ovo.git](https://github.com/5CCSACCA/coursework-Minigo-ovo.git)  
 
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)](https://fastapi.tiangolo.com/)
@@ -100,6 +101,12 @@ To run the automated tests:
 sudo docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 ```
 * Success Criteria: Look for system_tests exited with code 0 in the output.
+
+---
+
+### ⚠️ Input Requirements
+* **Images:** The system currently accepts **publicly accessible Image URLs** (HTTP/HTTPS) only. Local file upload is NOT supported in this version.
+* **Text:** Supports any natural language prompts.
 
 ---
 
