@@ -75,8 +75,8 @@ except Exception as e:
 app = FastAPI()
 
 class InputTask(BaseModel):
-    image_url: str = None
-    text_prompt: str = None
+    image_url: str | None = None
+    text_prompt: str | None = None
 
 # --- 4. RabbitMQ ---
 async def send_to_rabbitmq(message: dict):
