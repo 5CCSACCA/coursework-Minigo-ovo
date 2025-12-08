@@ -11,7 +11,7 @@ API_URL = os.getenv("API_URL", "http://uploader:8000")
 # External URLs for the buttons (accessed from the browser)
 PROM_URL = "http://localhost:9090"
 GRAFANA_URL = "http://localhost:3000"
-# Fill in your Firebase Console URL if needed, or keep generic
+
 FIREBASE_CONSOLE_URL = "https://console.firebase.google.com/" 
 
 st.set_page_config(page_title="AI SaaS Dashboard", layout="wide")

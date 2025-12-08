@@ -146,14 +146,14 @@ services:
       - backend
 
   # ------------------------------------
-  # 8. User Interface (Streamlit) - NEW!
+  # User Interface (Streamlit)
   # ------------------------------------
   ui:
     build:
       context: ./ui
     container_name: ui
     ports:
-      - "8501:8501" # 网页访问端口
+      - "8501:8501"
     environment:
       API_URL: http://uploader:8000
     depends_on:

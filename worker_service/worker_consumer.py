@@ -3,7 +3,7 @@ import os
 import json
 import io
 import datetime
-import time # ⚡ 新增：用于计算时间
+import time
 import aio_pika
 import requests
 from PIL import Image
@@ -13,22 +13,20 @@ from firebase_admin import credentials, initialize_app, db as firebase_db_module
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-# ⚡ 新增：Prometheus 客户端
 from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
-# --- 0. Prometheus 监控配置 (Stage 9) ---
+# --- 0. Prometheus ---
 try:
     start_http_server(8003)
     print("Worker: Prometheus metrics server started on port 8003")
 except Exception as e:
     print(f"Worker: Failed to start metrics server: {e}")
 
-# 定义指标
 IMAGES_PROCESSED = Counter('worker_images_processed_total', 'Total images processed by Worker')
 INFERENCE_TIME = Histogram('worker_inference_seconds', 'Time taken for AI inference')
 RABBITMQ_CONNECTED = Gauge('worker_rabbitmq_connected', 'RabbitMQ connection status (1=Connected, 0=Disconnected)')
 
-# --- 1. 配置加载 ---
+# --- 1. setting loading ---
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq/")
 POSTGRES_DB_URL = os.getenv("POSTGRES_DB_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -36,7 +34,7 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
 FIREBASE_CREDENTIALS_FILE = os.getenv("FIREBASE_CREDENTIALS_FILE", "/app/firebase-credentials.json")
 
-# --- 2. 数据库设置 (PostgreSQL) ---
+# --- 2. PostgreSQL setting ---
 Base = declarative_base()
 class RequestLog(Base):
     __tablename__ = "request_logs"
@@ -50,7 +48,7 @@ class RequestLog(Base):
 engine = create_engine(POSTGRES_DB_URL)
 SessionLocal = sessionmaker(bind=engine)
 
-# --- 3. Firebase 初始化 ---
+# --- 3. Firebase Initialization ---
 firebase_ref = None
 try:
     if FIREBASE_CREDENTIALS_FILE and os.path.exists(FIREBASE_CREDENTIALS_FILE):
@@ -63,7 +61,7 @@ try:
 except Exception as e:
     print(f"Worker: Firebase init failed: {e}")
 
-# --- 4. Gemini 初始化 ---
+# --- 4. Gemini Initialization ---
 client = None
 if GEMINI_API_KEY:
     try:
@@ -72,10 +70,9 @@ if GEMINI_API_KEY:
     except Exception as e:
         print(f"Worker: Gemini init failed: {e}")
 
-# --- 5. 核心处理函数 ---
+# --- 5. processing function ---
 def process_task(task_data):
-    """同步执行耗时任务：下载 -> Gemini -> DB更新 -> Firebase"""
-    start_time = time.time() # ⚡ 监控埋点：开始计时
+    start_time = time.time()
     
     record_id = task_data.get("record_id")
     image_url = task_data.get("image_url")
@@ -83,27 +80,27 @@ def process_task(task_data):
     
     print(f"Worker: Processing Task ID {record_id}...")
 
-    # A. 准备 Gemini 输入
+    # A. prepare Gemini input
     contents = []
     if image_url:
         try:
-            # 下载图片
+            # download image
             headers = {'User-Agent': 'Mozilla/5.0'}
             resp = requests.get(image_url, stream=True, timeout=15, headers=headers)
             resp.raise_for_status()
             
-            # 转换图片
+            # transform image
             image = Image.open(io.BytesIO(resp.content))
             mime_type = Image.MIME.get(image.format) if image.format else 'image/jpeg'
             image_part = types.Part.from_bytes(data=resp.content, mime_type=mime_type)
             contents.append(image_part)
         except Exception as e:
             print(f"Worker Error: Image download failed: {e}")
-            return # 停止处理
+            return # stop processing
 
     contents.append(text_prompt)
 
-    # B. 调用 Gemini
+    # B. calling Gemini
     try:
         response = client.models.generate_content(model=GEMINI_MODEL, contents=contents)
         llm_result = response.text
@@ -111,7 +108,7 @@ def process_task(task_data):
         print(f"Worker Error: Gemini call failed: {e}")
         llm_result = f"Error generating description: {e}"
 
-    # C. 更新 PostgreSQL (填入结果)
+    # C. refresh PostgreSQL (insert output)
     session = SessionLocal()
     try:
         record = session.query(RequestLog).filter(RequestLog.id == record_id).first()
@@ -124,7 +121,7 @@ def process_task(task_data):
     finally:
         session.close()
 
-    # D. 写入 Firebase (带前缀)
+    # D. write in Firebase (id_number)
     if firebase_ref:
         try:
             firebase_key = f"id_{record_id}"
@@ -140,19 +137,16 @@ def process_task(task_data):
         except Exception as e:
             print(f"Worker Error: Firebase write failed: {e}")
             
-    # ⚡ 监控埋点：更新指标
-    IMAGES_PROCESSED.inc() # 计数器 +1
+    IMAGES_PROCESSED.inc()
     duration = time.time() - start_time
-    INFERENCE_TIME.observe(duration) # 记录处理时长
+    INFERENCE_TIME.observe(duration)
 
-# --- 6. RabbitMQ 监听主循环 ---
+# --- 6. RabbitMQ monitor main loop ---
 async def main():
     try:
         connection = await aio_pika.connect_robust(RABBITMQ_URL)
-        # ⚡ 监控埋点：连接成功
         RABBITMQ_CONNECTED.set(1) 
     except Exception as e:
-        # ⚡ 监控埋点：连接失败
         RABBITMQ_CONNECTED.set(0)
         raise e
 
