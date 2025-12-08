@@ -46,14 +46,23 @@ This system is designed to run on a fresh Linux machine with **Docker** and **Do
 * A Firebase Realtime Database URL & Credentials JSON
 
 ### 2. Configuration (`.env` file)
-Create a `.env` file in the root directory. **Do not commit your actual keys to GitHub.**
+This project uses environment variables for security.
+**Before running**, please create a file named `.env` in the root directory and populate it with the following variables:
 
 ```bash
 # Copy and paste this into a new file named .env
+
+# 1. Google Gemini API Key
+# You can get a free key here: [https://aistudio.google.com/](https://aistudio.google.com/)
 GEMINI_API_KEY=your_gemini_api_key_here
-POSTGRES_DB_URL=postgresql://user:password@db:5432/saas_db
+
+# 2. Firebase Configuration
+# URL of your Firebase Realtime Database
 FIREBASE_DATABASE_URL=[https://your-project-id-default-rtdb.firebaseio.com](https://your-project-id-default-rtdb.firebaseio.com)
+# Path to the service account JSON file inside the container (Mapped via volume)
 FIREBASE_CREDENTIALS_FILE=/app/firebase-credentials.json
+
+POSTGRES_DB_URL=postgresql://user:password@db:5432/saas_db
 ```
 Note: Ensure your firebase-credentials.json file is placed in the root directory.
 
