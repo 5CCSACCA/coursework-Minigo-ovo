@@ -1,84 +1,123 @@
-https://github.com/5CCSACCA/coursework-Minigo-ovo.git
+# ☁️ Cloud-Native AI SaaS: Multimodal Object Detection & Reasoning
 
-# 5CCSACCA AI SaaS Deployment Manual
-This document provides instructions for deploying the dual-modal AI SaaS application using Docker.
+[![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-red.svg)](https://streamlit.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 1. Build the Docker Image (One Command)
-Use the following command to build the image, ensuring all dependencies and code are packaged:
-```bash
-sudo docker build . -t ai-saas-app
-```
+## 📖 Project Overview
 
-## 2. Run the Service (One Command)
-Use the following command to run the container in the background, mapping the host's port 8000 to the container's internal API port 80:
-```bash
-sudo docker run -d -p 8000:80 ai-saas-app
-```
+This project implements a scalable, cloud-native SaaS application designed for **multimodal AI processing**. It leverages an asynchronous microservices architecture to process images and text prompts, utilizing **Google Gemini 2.5 Flash** for high-performance reasoning.
 
-## 3. API Endpoints
-Once the service is deployed and running on port 8000, you can test the following endpoints:
+The system is fully containerized using Docker and orchestrated via Docker Compose, adhering to **12-Factor App** principles and **GitFlow** development practices.
 
-### 3.1 Health Check (Verification)
-* **Path:** `/`
-* **Method:** `GET`
-* **Test Command:**
-```bash
-curl http://localhost:8000/
-```
-* **Expected Output:**
-```json
-{"status": "ok", "message": "API is running"}
-```
-
-### 3.2 Text Generation Service (BitNet Placeholder)
-* **Path:** `/api/v1/generate`
-* **Method:** `POST`
-* **Input:** JSON body containing a string prompt.
-* **Test Command:**
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Tell me a joke."}' http://localhost:8000/api/v1/generate
-```
-* **Expected Output:**
-```json
-{"input_prompt":"Tell me a joke.","llm_response":"BitNet Placeholder: I received your prompt and processed it: 'Tell me a joke.'.","model":"BitNet(Placeholder)"}
-```
-
-### 3.3 Image Detection Service (Yolo Placeholder)
-
-* **Path:** `/api/v1/detect`
-* **Method:** `POST` (Multipart form data)
-* **Input:** A file named `test.jpeg` or similar.
-* **Test Command:**
-```bash
-curl -X POST -F "file=@test.jpeg" http://localhost:8000/api/v1/detect
-```
-* **Expected Output:**
-```json
-{"filename":"test.jpeg","size_bytes":5648,"status":"File received and model structure ready for inference."}
-```
-
-## Project Vision: The "Imaginer" (Contextual Narrative Generator)
-
-The "Imaginer" is an advanced AI service designed to generate short, imaginative narratives based on visual input. Instead of simple object descriptions, the system aims to create a backstory, a cause-and-effect chain, or an absurd, creative explanation for the events captured in an image or video frame. This project serves as a demonstration of integrating objective machine vision with sophisticated language creativity.
-
-### 1. Dual-Modality Mechanism
-
-The system integrates two core AI services:
-
-* **Visual Service (Yolo):** Uses a small Yolo model (e.g., YOLOv8n) not only for standard object detection but also—in later stages—to capture relational data (e.g., person *next to* a red car, cat *jumping* over a fence). The output is a structured, contextualized prompt for the LLM.
-* **Narrative Service (BitNet LLM):** Receives the detailed contextual prompt from the Yolo service. It then leverages the compact power of BitNet to generate a short (approx. 100-word), highly imaginative story that explains the visual scene.
-
-### 2. Future Implementation Plan (Phase 3 Roadmap)
-
-The development will progress through the required stages, with a focus on building a robust, scalable, and secure narrative generation service:
-
-| Phase 3 Stage | "Imaginer" Implementation Focus |
-| :--- | :--- |
-| **Stage 4 (Persistence)** | Database records every user request (e.g., input file name, initial Yolo detection results). This enables users to retrieve the *raw detected data* that formed the basis of their story. |
-| **Stage 5 (Firebase)** | Store the **final generated narrative/story** (the high-value output) in Firebase Storage. Endpoints will be implemented to retrieve, update, or delete these unique stories from the user's history. |
-| **Stage 6 (Messaging/Orchestration)** | **RabbitMQ** will decouple the I/O-intensive Yolo detection from the high-latency LLM generation. The Yolo service posts a detailed JSON message to the queue. A separate **Narrative Generation Service** (LLM) consumes this message and generates the creative story asynchronously, ensuring the API remains responsive. |
-| **Stage 7 (Authentication)** | Implement Firebase user authentication to secure API access and manage user story history. |
-| **Stage 8 (Cost Estimation)** | Provide cost calculations under the required load conditions (100 users for core services, 100,000 for the RabbitMQ/LLM service) to prove scalability and cost-efficiency. |
-| **Stage 10/11 (Testing/Security)** | Implement a complete test suite for API endpoints and ensure robust security measures protect the database, API, and Firebase components. |
+### Key Features
+* **Multimodal Input:** Accepts Image-only, Text-only, or Mixed (Image + Text) inputs.
+* **Asynchronous Processing:** Decoupled Uploader (Producer) and Worker (Consumer) via **RabbitMQ** for high concurrency.
+* **Dual-Database Storage:**
+    * **PostgreSQL:** Stores structured request metadata and status.
+    * **Firebase Realtime Database:** Stores unstructured LLM outputs and JSON results.
+* **Observability:** Integrated **Prometheus** and **Grafana** for real-time system monitoring.
+* **User Interface:** User-friendly **Streamlit** dashboard for easy interaction and testing.
 
 ---
+
+## 🏗️ System Architecture
+
+The system consists of the following isolated services:
+
+1.  **Uploader (API Gateway):** FastAPI service exposing REST endpoints. Accepts user requests and queues them.
+2.  **RabbitMQ (Message Broker):** Buffers tasks to prevent system overload during traffic spikes.
+3.  **Worker (AI Processor):** Consumes tasks, performs logic, calls Gemini API, and writes to databases.
+4.  **Databases:**
+    * **PostgreSQL:** Relational storage for transaction logs.
+    * **Firebase:** NoSQL storage for flexible result retrieval.
+5.  **Monitoring:** Prometheus scrapes metrics (port 8002/8003), visualized by Grafana.
+6.  **UI:** Streamlit frontend for user interaction.
+
+---
+
+## 🍏 Getting Started (Deployment)
+
+This system is designed to run on a fresh Linux machine with **Docker** and **Docker Compose** installed.
+
+### 1. Prerequisites
+* Docker Engine & Docker Compose
+* A Google Gemini API Key
+* A Firebase Realtime Database URL & Credentials JSON
+
+### 2. Configuration (`.env` file)
+Create a `.env` file in the root directory. **Do not commit your actual keys to GitHub.**
+
+```bash
+# Copy and paste this into a new file named .env
+GEMINI_API_KEY=your_gemini_api_key_here
+POSTGRES_DB_URL=postgresql://user:password@db:5432/saas_db
+FIREBASE_DATABASE_URL=[https://your-project-id-default-rtdb.firebaseio.com](https://your-project-id-default-rtdb.firebaseio.com)
+FIREBASE_CREDENTIALS_FILE=/app/firebase-credentials.json
+```
+Note: Ensure your firebase-credentials.json file is placed in the root directory.
+
+### 3. One-Command Deployment
+To build and start the entire stack (API, Worker, DBs, Monitoring, UI):
+
+```bash
+sudo docker compose up --build -d
+```
+
+### 4. Access Points
+* Web UI (Streamlit): http://localhost:8501
+
+* API Docs (Swagger): http://localhost:8000/docs
+
+* Grafana Dashboard: http://localhost:3000 (Login: admin/admin)
+
+* Prometheus: http://localhost:9090
+
+---
+
+## 🧪 Automated Testing
+The project includes a robust **Integration Test Suite** that spins up an isolated environment to verify the full pipeline (Submit -> Queue -> Process -> Result -> Cleanup).
+To run the automated tests:
+```bash
+sudo docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+```
+* Success Criteria: Look for system_tests exited with code 0 in the output.
+
+---
+
+## 💰 Cost Estimation (Scalability)
+Based on the coursework scenario (100 users for API/LLM, scaling to 100,000 for Queue):
+**Formula:**
+$$Total Cost = Cost_{API} + Cost_{LLM} + (Cost_{Worker} \times N_{instances}) + Cost_{Queue} + Cost_{Storage}$$
+* **API & LLM (Fixed):** Lightweight, stateless services. 1-2 instances sufficient for 100 users.
+* **RabbitMQ (Scalable):** Handles 100k users via message buffering. Cost is based on throughput (IOPS).
+* **Worker (Variable):** The most expensive component. CPU/GPU intensive.
+  * Scaling Strategy: Auto-scale Worker instances based on Queue Length (RabbitMQ metrics).
+* **Firebase (F):** Cost scales linearly with data storage size (constant F per GB).
+**Sustainability Note:** The asynchronous architecture allows the Worker to sleep or scale down to zero when the queue is empty, significantly reducing energy consumption compared to always-on servers.
+
+---
+
+📂 Project Structure.
+```bash
+├── docker-compose.yml       # Main production deployment config
+├── docker-compose.test.yml  # Isolated testing environment config
+├── prometheus.yml           # Monitoring configuration
+├── .env                     # Environment variables (Excluded from git)
+├── firebase-credentials.json# Firebase key (Excluded from git)
+├── uploader_service/        # API Producer code
+│   ├── uploader_api.py
+│   └── requirements.txt
+├── worker_service/          # Worker Consumer code
+│   ├── worker_consumer.py
+│   └── requirements.txt
+└── ui/                      # Streamlit Dashboard
+    ├── app.py
+    └── requirements.txt
+```
+
+---
+
+## 🛡️ Security Measures
+Secrets Management: API keys and credentials are loaded via .env and Docker volumes, never hardcoded.Network Isolation: Database ports (5432) are not exposed to the public internet in production.Role Separation: The Uploader cannot execute AI models directly; it only queues tasks, preventing API blocking attacks.
