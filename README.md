@@ -125,7 +125,7 @@ sudo docker compose -f docker-compose.test.yml up --build --abort-on-container-e
 ---
 
 ## 💰 Cost Estimation (Scalability)
-Based on the coursework scenario (100 users for API/LLM, scaling to 100,000 for Queue):
+Based on the coursework scenario (100 users for API/LLM, scaling to 100,000 for Queue):   
 **Formula:**
 $$Total Cost = Cost_{API} + Cost_{LLM} + (Cost_{Worker} \times N_{instances}) + Cost_{Queue} + Cost_{Storage}$$
 * **API & LLM (Fixed):** Lightweight, stateless services. 1-2 instances sufficient for 100 users.
@@ -157,5 +157,12 @@ $$Total Cost = Cost_{API} + Cost_{LLM} + (Cost_{Worker} \times N_{instances}) + 
 
 ---
 
+## 📷 Video script and PPT
+They are at the docs folder in this repository.
+
+---
+
 ## 🛡️ Security Measures
-Secrets Management: API keys and credentials are loaded via .env and Docker volumes, never hardcoded.Network Isolation: Database ports (5432) are not exposed to the public internet in production.Role Separation: The Uploader cannot execute AI models directly; it only queues tasks, preventing API blocking attacks.
+Secrets Management: API keys and credentials are loaded via .env and Docker volumes, never hardcoded.   
+Network Isolation: Database ports (5432) are not exposed to the public internet in production.   
+Role Separation: The Uploader cannot execute AI models directly; it only queues tasks, preventing API blocking attacks.
