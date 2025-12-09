@@ -64,7 +64,7 @@ This system is designed to run on a fresh Linux machine with **Docker** and **Do
 This project uses environment variables for security.   
 ### **Before running**, 
 > **📝 Note for Examiners / Markers:**
-> To facilitate testing, the required **`.env`** file and the **`firebase-credentials.json`** service account key have been submitted separately via **KEATS** (packaged in the ZIP file).
+> To facilitate testing, the required **`.env`** file and the **`firebase-credentials.json`** service account key have been submitted separately via **KEATS** (packaged in a ZIP file).
 >
 > **Please download and extract these two files into the project root directory (where docker-compose.yml is located)** before running the system. This ensures secure access to the Gemini API and Firebase services without exposing credentials in the codebase.
 
