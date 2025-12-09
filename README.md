@@ -1,4 +1,4 @@
-# ☁️ Cloud-Native AI SaaS Project
+# ☁️ Cloud-Native AI SaaS: Multimodal Object Detection
 > **Repository URL:** [https://github.com/5CCSACCA/coursework-Minigo-ovo.git](https://github.com/5CCSACCA/coursework-Minigo-ovo.git)  
 
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
