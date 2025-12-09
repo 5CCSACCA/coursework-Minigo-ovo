@@ -88,7 +88,7 @@ POSTGRES_DB_URL=postgresql://user:password@db:5432/saas_db
 ```
 **Note: Ensure your firebase-credentials.json file is placed in the root directory.**   
 
-## 🔥Important: The system will NOT start if firebase-credentials.json is missing. Please ensure this file exists in the root directory.
+**🔥Important: The system will NOT start if firebase-credentials.json is missing. Please ensure this file exists in the root directory.**
 
 ### 3. One-Command Deployment🍻
 To build and start the entire stack (API, Worker, DBs, Monitoring, UI):
