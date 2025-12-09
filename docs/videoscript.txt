@@ -1,0 +1,50 @@
+Hello there, this is Kexin. Welcome to my presentation on the "Cloud-Native AI SaaS" project. This is a multimodal object detection and reasoning service.
+
+--- Slide 2: System Overview ( Stage 1 & 3) ---
+
+The goal of this system is to transform an AI model into a live SaaS application. It accepts image URLs and natural language prompts as input. For example, you can ask "Who is this?". The system then returns an AI-generated description.
+
+--- Slide 3: System Architecture ( Stage 6) ---
+
+Here is the system architecture. I used a "Producer-Consumer" pattern. The "Uploader" service acts as the API gateway to accept user requests. It sends tasks to the "RabbitMQ" message queue. The "Worker" service processes these tasks in the background. This ensures the system remains stable even under high load.
+
+--- Slide 4: The AI Model ( Phase 1) ---
+
+For the AI model, I selected "Google Gemini 2.5 Flash". Unlike traditional models like YOLO, Gemini is multimodal. It can understand both images and text simultaneously. It is smarter and much faster for inference.
+
+--- Slide 5: Development & CI/CD ( Phase 2) ---
+
+I strictly followed the "GitFlow" workflow, using Main, Develop, and Feature branches. Deployment is extremely simple. Thanks to Docker and Docker Compose, the entire stack can be launched with just one command: "docker compose up".
+
+--- Slide 6: Quality Assurance ( Stage 9, 10, 11) ---
+
+To ensure quality, I implemented three key measures. First, an automated integration test suite to verify all functions. Second, all API keys are managed via environment variables for security. Third, I integrated "Prometheus" and "Grafana" to monitor the system status in real-time.
+
+--- Slide 7: Cost Estimation ( Stage 8) ---
+
+Let's look at the costs for serving 100,000 users. The main cost driver is the "Worker" service. While the API is cheap, the Worker requires significant compute power. By using "RabbitMQ" to buffer the load, we avoid over-provisioning servers, which optimizes the total cost.
+
+--- Slide 8: Sustainability & Limitations ( Phase 4) ---
+
+Regarding sustainability, the asynchronous architecture allows the Worker to idle when there are no tasks, saving energy. A current limitation is that the system only supports public image URLs, not local file uploads yet.
+
+--- Slide 9: References ---
+
+These are the key references I used, including documentation and tools. Thank you for listening!
+
+--- Slide 10: Live Demo ( Final Demo) ---
+
+Now, please watch my one-minute live demonstration of the system.
+
+--- 1 Minute Live Demo Script ---
+
+---  (UI Intro) ---
+
+"This is the user interface of my AI SaaS platform. It is user-friendly and allows users to interact with the complex backend microservices easily."
+
+--- (Submitting Task) ---
+
+"I will now demonstrate the multimodal feature. I entered a question. Then, I click submit."
+"Now, let's check the result. I enter the ID and search. Look, the Gemini model correctly identified the image and answered my question."
+Now let's check the endpoints of fast api.
+"Finally, the Grafana dashboard captures this request in real-time. The system is running perfectly. Thank you for watching."
