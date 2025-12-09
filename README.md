@@ -37,6 +37,20 @@ The system consists of the following isolated services:
 
 ---
 
+## 💾 Data Persistence Showcase
+
+The system utilizes a dual-database strategy for optimal performance and flexibility.
+
+### Firebase Realtime Database (NoSQL)
+Stores unstructured AI results and JSON outputs. Below is a snapshot of the live database capturing task results:
+
+![Firebase Database Structure](docs/firebase_screenshot.png) 
+
+### PostgreSQL (Relational)
+Stores structured metadata for every request to ensure auditability.
+
+---
+
 ## 🍏 Getting Started (Deployment)
 
 This system is designed to run on a fresh Linux machine with **Docker** and **Docker Compose** installed.
