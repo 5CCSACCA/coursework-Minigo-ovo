@@ -44,7 +44,7 @@ The system utilizes a dual-database strategy for optimal performance and flexibi
 ### Firebase Realtime Database (NoSQL)
 Stores unstructured AI results and JSON outputs. Below is a snapshot of the live database capturing task results:
 
-![Firebase Database Structure](docs/firebase_screenshot.png) 
+![Firebase Database Structure](docs/firebase_screenshot1.png) 
 
 ### PostgreSQL (Relational)
 Stores structured metadata for every request to ensure auditability.
